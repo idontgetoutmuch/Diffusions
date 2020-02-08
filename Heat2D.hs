@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wall            #-}
+
 {-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE OverloadedLists     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -19,13 +21,10 @@ import           Control.Applicative ( liftA2 )
 import qualified GHC.TypeLits as M
 import           Data.Functor
 import           Data.List.Split
-import           Data.List
 import           System.IO
 
 import           Numeric.Sundials.ARKode.ODE
 import           Numeric.LinearAlgebra
-
-import Debug.Trace
 
 
 kx, ky :: Floating a => a
@@ -72,15 +71,15 @@ a2 :: forall a m n . (M.KnownNat m, M.KnownNat n, Floating a, Eq a) =>
           N.Hyper '[N.Vector n, N.Vector m, N.Vector n, N.Vector m] (Sym a)
 a2 = N.binary (*) (N.Scalar $ var "c2") preA2
 
-yy5 :: Floating a => N.Hyper '[N.Vector 5, N.Vector 4, N.Vector 5, N.Vector 4] a
-yy5 = N.binary (*) (N.Scalar c1) yy4
+a1Num :: Floating a => N.Hyper '[N.Vector 5, N.Vector 4, N.Vector 5, N.Vector 4] a
+a1Num = N.binary (*) (N.Scalar c1) preA1
 
 yy5Sym :: forall a . (Floating a, Eq a) =>
           N.Hyper '[N.Vector 5, N.Vector 4, N.Vector 5, N.Vector 4] (Sym a)
-yy5Sym = N.binary (*) (N.Scalar $ var "c1") yy4
+yy5Sym = N.binary (*) (N.Scalar $ var "c1") preA1
 
-yy4 :: forall b . Num b => N.Hyper '[N.Vector 5, N.Vector 4, N.Vector 5, N.Vector 4] b
-yy4 = N.Prism $ N.Prism $ N.Prism $ N.Prism $ N.Scalar $
+preA1 :: forall b . Num b => N.Hyper '[N.Vector 5, N.Vector 4, N.Vector 5, N.Vector 4] b
+preA1 = N.Prism $ N.Prism $ N.Prism $ N.Prism $ N.Scalar $
       N.viota @4 <&> (\(N.Fin x) ->
       N.viota @5 <&> (\(N.Fin w) ->
       N.viota @4 <&> (\(N.Fin v) ->
@@ -305,10 +304,10 @@ update' k n xs =
       case M.someNatVal $ fromIntegral k of
         Nothing -> error "static/dynamic mismatch"
         Just (M.SomeNat (_ :: Proxy k)) ->
-          N.elements $ safeUpdate' b
+          N.elements $ safeUpdate' a
           where
-            b :: N.Hyper '[N.Vector k, N.Vector n] Double
-            b = hyperfy xs
+            a :: N.Hyper '[N.Vector k, N.Vector n] Double
+            a = hyperfy xs
 
 t0, tf :: Double
 t0 = 0.0
@@ -320,13 +319,14 @@ bigNt = 20
 dTout :: Double
 dTout = (tf - t0) / (fromIntegral bigNt)
 
+ts :: [Double]
 ts = map (dTout *) $ map fromIntegral [1..bigNt]
 
 initH :: forall m n a . (M.KnownNat m, M.KnownNat n, Floating a) =>
                      N.Hyper '[N.Vector m, N.Vector n] a
 initH = N.Prism $ N.Prism $ N.Scalar $
-        N.viota @n <&> (\(N.Fin x) ->
-        N.viota @m <&> (\(N.Fin w) ->
+        N.viota @n <&> (\(N.Fin _) ->
+        N.viota @m <&> (\(N.Fin _) ->
         0.0))
 
 sol :: Matrix Double
@@ -337,6 +337,7 @@ sol' = odeSolveV SDIRK_5_3_4' Nothing 1.0e-5 1.0e-10 (const bigU') (assoc (nx * 
   where
     bigU' bigU = bigA #> bigU + b
 
+main :: IO ()
 main = do
   h <- openFile "Haskell.txt" WriteMode
   mapM_ (hPutStrLn h) $ map (concatMap (' ':)) $ map (map show) $ toLists sol'
