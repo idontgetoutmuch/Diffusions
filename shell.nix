@@ -1,4 +1,11 @@
-{ pkgs ? import <nixpkgs> { overlays = [ ]; }, doBenchmark ? false }:
+let overlay1 = self: super:
+{
+  sundials = self.callPackage ./CustomSundials { };
+};
+
+in
+
+{ pkgs ? import <nixpkgs> { overlays = [ overlay1 ]; }, doBenchmark ? false }:
 
 let
 
@@ -25,5 +32,10 @@ in
   name = "env";
   buildInputs = [
     (pkgs.haskellPackages.ghcWithPackages haskellDeps)
+    pkgs.openmpi
+    pkgs.openssh
+    pkgs.sundials
+    pkgs.python3
+    (pkgs.python3.withPackages (ps: [ ps.numpy ps.matplotlib ]))
   ];
 }
