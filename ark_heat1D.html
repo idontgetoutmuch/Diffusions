@@ -1,0 +1,146 @@
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span style="color: green;">{-# OPTIONS_GHC -Wall #-}</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span style="color: green;">{-# LANGUAGE DataKinds #-}</span>
+<span style="color: green;">{-# LANGUAGE QuasiQuotes #-}</span>
+<span style="color: green;">{-# LANGUAGE LambdaCase #-}</span>
+<span style="color: green;">{-# LANGUAGE GADTs #-}</span>
+<span style="color: green;">{-# LANGUAGE ScopedTypeVariables #-}</span>
+<span style="color: green;">{-# LANGUAGE OverloadedStrings #-}</span>
+<span style="color: green;">{-# LANGUAGE TypeOperators #-}</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span style="color: green;">{-# LANGUAGE DataKinds #-}</span>
+<span style="color: green;">{-# LANGUAGE KindSignatures #-}</span>
+<span style="color: green;">{-# LANGUAGE TypeFamilies #-}</span>
+<span style="color: green;">{-# LANGUAGE TypeOperators #-}</span>
+<span style="color: green;">{-# LANGUAGE FlexibleInstances #-}</span>
+<span style="color: green;">{-# LANGUAGE FlexibleContexts #-}</span>
+<span style="color: green;">{-# LANGUAGE ScopedTypeVariables #-}</span>
+<span style="color: green;">{-# LANGUAGE ConstraintKinds #-}</span>
+<span style="color: green;">{-# LANGUAGE ExistentialQuantification #-}</span>
+<span style="color: green;">{-# LANGUAGE RankNTypes #-}</span>
+<span style="color: green;">{-# LANGUAGE PolyKinds #-}</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span style="color: green;">{-# LANGUAGE DataKinds             #-}</span>
+<span style="color: green;">{-# LANGUAGE TypeOperators         #-}</span>
+<span style="color: green;">{-# LANGUAGE KindSignatures        #-}</span>
+<span style="color: green;">{-# LANGUAGE GADTs                 #-}</span>
+<span style="color: green;">{-# LANGUAGE Rank2Types            #-}</span>
+<span style="color: green;">{-# LANGUAGE ScopedTypeVariables   #-}</span>
+<span style="color: green;">{-# LANGUAGE MultiParamTypeClasses #-}</span>
+<span style="color: green;">{-# LANGUAGE FlexibleInstances     #-}</span>
+<span style="color: green;">{-# LANGUAGE TypeFamilies          #-}</span>
+<span style="color: green;">{-# LANGUAGE UndecidableInstances  #-}</span>
+<span style="color: green;">{-# LANGUAGE PolyKinds             #-}</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span style="color: blue; font-weight: bold;">import</span>           <span style="">Numeric.Sundials.ARKode.ODE</span>
+<span style="color: blue; font-weight: bold;">import</span>           <span style="">Numeric.LinearAlgebra</span>
+<span style="color: blue; font-weight: bold;">import</span> <span style="color: blue; font-weight: bold;">qualified</span> <span style="">Naperian</span> <span style="color: blue; font-weight: bold;">as</span> <span style="">N</span>
+<span style="color: blue; font-weight: bold;">import</span> <span style="color: blue; font-weight: bold;">qualified</span> <span style="">Data.Foldable</span> <span style="color: blue; font-weight: bold;">as</span> <span style="">F</span>
+<span style="color: blue; font-weight: bold;">import</span>           <span style="">Control.Applicative</span> <span style="color: red;">(</span> <span style="">liftA2</span> <span style="color: red;">)</span>
+<span style="color: blue; font-weight: bold;">import</span> <span style="color: blue; font-weight: bold;">qualified</span> <span style="">GHC.TypeNats</span> <span style="color: blue; font-weight: bold;">as</span> <span style="">M</span>
+
+<span style="color: blue; font-weight: bold;">import</span> <span style="">Graphics.Rendering.Chart</span> <span style="">hiding</span> <span style="color: red;">(</span><span style="">Matrix</span><span style="color: red;">,</span> <span style="">Vector</span><span style="color: red;">)</span>
+<span style="color: blue; font-weight: bold;">import</span> <span style="">Graphics.Rendering.Chart.Backend.Diagrams</span>
+<span style="color: blue; font-weight: bold;">import</span> <span style="">Diagrams.Backend.Cairo.CmdLine</span>
+<span style="color: blue; font-weight: bold;">import</span> <span style="">Diagrams.Prelude</span> <span style="">hiding</span> <span style="color: red;">(</span><span style="">render</span><span style="color: red;">,</span> <span style="">Renderable</span><span style="color: red;">,</span> <span style="color: red;">(</span><span style="">*~</span><span style="color: red;">)</span><span style="color: red;">,</span> <span style="">Time</span><span style="color: red;">,</span> <span style="">Vector</span><span style="color: red;">)</span>
+<span style="color: blue; font-weight: bold;">import</span> <span style="">Diagrams.Backend.CmdLine</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span style="color: blue; font-weight: bold;">import</span> <span style="">System.IO.Unsafe</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span style="">displayHeader</span> <span style="color: red;">::</span> <span style="">FilePath</span> <span style="color: red;">-&gt;</span> <span style="">Diagram</span> <span style="">B</span> <span style="color: red;">-&gt;</span> <span style="">IO</span> <span style="">()</span>
+<span style="">displayHeader</span> <span style="">fn</span> <span style="color: red;">=</span>
+  <span style="">mainRender</span> <span style="color: red;">(</span> <span style="">DiagramOpts</span> <span style="color: red;">(</span><span style="">Just</span> <span class="hs-num">900</span><span style="color: red;">)</span> <span style="color: red;">(</span><span style="">Just</span> <span class="hs-num">700</span><span style="color: red;">)</span> <span style="">fn</span>
+             <span style="color: red;">,</span> <span style="">DiagramLoopOpts</span> <span style="">False</span> <span style="">Nothing</span> <span class="hs-num">0</span>
+             <span style="color: red;">)</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span style="">chart</span> <span style="color: red;">::</span> <span style="">String</span> <span style="color: red;">-&gt;</span>
+         <span style="">String</span> <span style="color: red;">-&gt;</span>
+         <span style="color: red;">[</span><span style="color: red;">[</span><span style="color: red;">(</span><span style="">Double</span><span style="color: red;">,</span> <span style="">Double</span><span style="color: red;">)</span><span style="color: red;">]</span><span style="color: red;">]</span> <span style="color: red;">-&gt;</span>
+         <span style="">Renderable</span> <span style="">()</span>
+<span style="">chart</span> <span style="">t</span> <span style="">l</span> <span style="">obss</span> <span style="color: red;">=</span> <span style="">toRenderable</span> <span style="">layout</span>
+  <span style="color: blue; font-weight: bold;">where</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">    <span style="">actual</span> <span style="">x</span> <span style="">l</span> <span style="">c</span> <span style="color: red;">=</span> <span style="">plot_lines_values</span> <span style="">.~</span> <span style="color: red;">[</span><span style="">x</span><span style="color: red;">]</span>
+                   <span style="">$</span> <span style="">plot_lines_style</span>  <span style="">.</span> <span style="">line_color</span> <span style="">.~</span> <span style="">opaque</span> <span style="">c</span>
+                   <span style="color: green;">-- $ plot_lines_title .~ l</span>
+                   <span style="">$</span> <span style="">plot_lines_style</span>  <span style="">.</span> <span style="">line_width</span> <span style="">.~</span> <span class="hs-num">1.0</span>
+                   <span style="">$</span> <span style="">def</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">    <span style="">ls</span> <span style="color: red;">=</span> <span style="">map</span> <span style="color: red;">(</span><span style="color: red;">\</span><span style="">n</span> <span style="color: red;">-&gt;</span> <span style="color: teal;">"Path "</span> <span style="">++</span> <span style="">show</span> <span style="">n</span><span style="color: red;">)</span> <span style="color: red;">[</span><span class="hs-num">1</span><span style="color: red;">..</span><span style="color: red;">]</span>
+    <span style="">cs</span> <span style="color: red;">=</span> <span style="">cycle</span> <span style="color: red;">[</span><span style="">blue</span><span style="color: red;">,</span> <span style="">green</span><span style="color: red;">,</span> <span style="">red</span><span style="color: red;">,</span> <span style="">brown</span><span style="color: red;">,</span> <span style="">crimson</span><span style="color: red;">]</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">    <span style="">actuals'</span> <span style="color: red;">::</span> <span style="color: red;">[</span><span style="">PlotLines</span> <span style="">Double</span> <span style="">Double</span><span style="color: red;">]</span>
+    <span style="">actuals'</span> <span style="color: red;">=</span> <span style="">zipWith3</span> <span style="">actual</span> <span style="">obss</span> <span style="">ls</span> <span style="">cs</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">    <span style="">layout</span> <span style="color: red;">=</span> <span style="">layout_title</span> <span style="">.~</span> <span style="">t</span>
+           <span style="">$</span> <span style="">layout_plots</span> <span style="">.~</span> <span style="color: red;">(</span><span style="">map</span> <span style="">toPlot</span> <span style="">actuals'</span><span style="color: red;">)</span>
+           <span style="">$</span> <span style="">layout_y_axis</span> <span style="">.</span> <span style="">laxis_title</span> <span style="">.~</span> <span style="">l</span>
+           <span style="">$</span> <span style="">layout_y_axis</span> <span style="">.</span> <span style="">laxis_override</span> <span style="">.~</span> <span style="">axisGridHide</span>
+           <span style="">$</span> <span style="">layout_x_axis</span> <span style="">.</span> <span style="">laxis_title</span> <span style="">.~</span> <span style="color: teal;">"Time"</span>
+           <span style="">$</span> <span style="">layout_x_axis</span> <span style="">.</span> <span style="">laxis_override</span> <span style="">.~</span> <span style="">axisGridHide</span>
+           <span style="">$</span> <span style="">def</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span style="">diagrmM</span> <span style="color: red;">::</span> <span style="">String</span> <span style="color: red;">-&gt;</span> <span style="">String</span> <span style="color: red;">-&gt;</span> <span style="color: red;">[</span><span style="color: red;">[</span><span style="color: red;">(</span><span style="">Double</span><span style="color: red;">,</span> <span style="">Double</span><span style="color: red;">)</span><span style="color: red;">]</span><span style="color: red;">]</span> <span style="color: red;">-&gt;</span> <span style="">IO</span> <span style="color: red;">(</span><span style="">Diagram</span> <span style="">Cairo</span><span style="color: red;">)</span>
+<span style="">diagrmM</span> <span style="">t</span> <span style="">l</span> <span style="">xss</span> <span style="color: red;">=</span> <span style="color: blue; font-weight: bold;">do</span>
+  <span style="">denv</span> <span style="color: red;">&lt;-</span> <span style="">defaultEnv</span> <span style="">vectorAlignmentFns</span> <span class="hs-num">600</span> <span class="hs-num">500</span>
+  <span style="">return</span> <span style="">$</span> <span style="">fst</span> <span style="">$</span> <span style="">runBackendR</span> <span style="">denv</span> <span style="color: red;">(</span><span style="">chart</span> <span style="">t</span> <span style="">l</span> <span style="">xss</span><span style="color: red;">)</span></code></pre>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span style="">main</span> <span style="color: red;">::</span> <span style="">IO</span> <span style="">()</span>
+<span style="">main</span> <span style="color: red;">=</span> <span style="color: blue; font-weight: bold;">do</span>
+  <span style="">putStrLn</span> <span style="color: teal;">"Hello"</span></code></pre>
+<p>With one spatial dimension we have:</p>
+<p><span class="math display">\[
+u_{t}=k u_{x x} + f
+\]</span></p>
+<p>initial condition <span class="math inline">\(u(0, x)=0\)</span></p>
+<p>Dirichlet boundary conditions</p>
+<p><span class="math display">\[
+\frac{\partial u}{\partial t}(t, 0)=\frac{\partial u}{\partial t}(t, 1)=0
+\]</span></p>
+<p><span class="math display">\[
+f(t, x)=\left\{\begin{array}{ll}{1} &amp; {\text { if } x=1 / 2} \\ {0} &amp; {\text { otherwise }}\end{array}\right.
+\]</span></p>
+<p>and we can discretize over this spatial dimension using:</p>
+<p><span class="math display">\[
+u_{x x}=\frac{u_{j+1}-2 u_{j}+u_{j-1}}{\Delta x^{2}}
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+u_{j}(t) \triangleq u\left(t, x_{j}\right), \quad x_{j} \triangleq j \Delta x, \quad 0 \leq j \leq n+1
+\]</span></p>
+<p><span class="math display">\[
+\dot{u}_i = \sum_0^{n+1} A_{i\,j} u_j + B_i, \quad 0 \leq i \leq n+1
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+\begin{aligned}
+A_{0\,j}     = 0, &amp; \quad 0 \leq j \leq n+1, &amp; \text{boundary condition} \\
+A_{i\,i-1}   = 1  &amp;                          &amp;                           \\
+A_{i\,i}     = 2  &amp;                          &amp;                           \\
+A_{i\,i+1}   = 1  &amp;                          &amp;                           \\
+A_{{n+1}\,j} = 0, &amp; \quad 0 \leq j \leq n+1, &amp; \text{boundary condition} \\
+A_{i\,j}     = 0  &amp; \quad \text{otherwise}   &amp;                           \\
+\end{aligned}
+\]</span></p>
+<p>Converting this to a system of ODEs is straightforward:</p>
+<p><span class="math display">\[
+\begin{bmatrix}
+\dot{u_0} \\
+\dot{u_1} \\
+\dot{u_2} \\
+\dot{u_3} \\
+\dot{u_4}
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+1 &amp; 2 &amp; 1 &amp; 0 &amp; 0 \\
+0 &amp; 1 &amp; 2 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; 1 &amp; 2 &amp; 1 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0
+\end{bmatrix}
+\begin{bmatrix}
+u_0 \\
+u_1 \\
+u_2 \\
+u_3 \\
+u_4
+\end{bmatrix}
++
+\begin{bmatrix}
+f_0 \\
+f_1 \\
+f_2 \\
+f_3 \\
+f_4
+\end{bmatrix}
+\]</span></p>
+<p>where <span class="math inline">\(f_j \triangleq f(t, x_j)\)</span>.</p>
