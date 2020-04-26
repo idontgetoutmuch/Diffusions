@@ -13123,7 +13123,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Suppose we are observing exponential growth $\dot{y} = \theta y$ but we don't know $\theta$ and wish to estimate it. We could assume $\theta \sim {\cal{N}}(\mu, \sigma^2)$ and use something like Markov Chain Monte Carlo or Hamiltonian Monte Carlo and any observations to infer $\mu$ and $\sigma$. However, we might want to model that the further we go into the future, the less we know about $\theta$. We can write our system as as</p>
+<p>Suppose we are observing exponential growth $\dot{y} = \theta y$ but we don't know $\theta$ and wish to estimate it. We could assume $\theta \sim {\cal{N}}(\mu, \sigma^2)$ and use least squares or better something like Markov Chain Monte Carlo or Hamiltonian Monte Carlo and any observations to infer $\mu$ and $\sigma$. However, we might want to model that the further we go into the future, the less we know about $\theta$. We can write our system as as</p>
 $$
 \begin{aligned}
 \mathrm{d}y &amp; = \theta y\mathrm{d}t \\
@@ -13138,6 +13138,14 @@ $$<p>where $W_t$ is Brownian Motion.</p>
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Fokker-Planck">Fokker-Planck<a class="anchor-link" href="#Fokker-Planck">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can use the <a href="https://en.wikipedia.org/wiki/Fokker%E2%80%93Planck_equation">Fokker-Planck equation</a> to convert a stochastic differential equation into a partial differential equation.</p>
+
 </div>
 </div>
 </div>
@@ -13408,6 +13416,14 @@ $$
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's write down the tensor $A$ in Haskell</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
@@ -13439,6 +13455,14 @@ $$
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can concretize this to symbolic numbers</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
@@ -13453,6 +13477,14 @@ $$
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>And do the same for the tensor $B$</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -13631,6 +13663,14 @@ $$
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we have checked that our tensors look correct (at least for a particular and small tensor) we can try solving the system numerically</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>Spatial mesh size:</p>
 
 </div>
@@ -13642,8 +13682,8 @@ $$
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-Haskell"><pre><span></span><span class="nf">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="ow">::</span> <span class="kt">Int</span>
-<span class="nf">nx</span> <span class="ow">=</span> <span class="mi">30</span>
-<span class="nf">ny</span> <span class="ow">=</span> <span class="mi">60</span>
+<span class="nf">nx</span> <span class="ow">=</span> <span class="mi">3</span>
+<span class="nf">ny</span> <span class="ow">=</span> <span class="mi">4</span>
 </pre></div>
 
     </div>
@@ -13713,6 +13753,14 @@ $$
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we make the tensors more concrete by ensuring their elements come from <code>Floating</code></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[13]:</div>
@@ -13743,6 +13791,14 @@ $$
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Again we flatten the system into a matrix form so we can check everything looks as it should</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[15]:</div>
@@ -13752,7 +13808,7 @@ $$
 <span class="nf">bigA</span> <span class="ow">=</span> <span class="n">fromLists</span> <span class="o">$</span>
        <span class="n">fmap</span> <span class="p">(</span><span class="kt">N</span><span class="o">.</span><span class="n">elements</span> <span class="o">.</span> <span class="kt">N</span><span class="o">.</span><span class="kt">Prism</span> <span class="o">.</span> <span class="kt">N</span><span class="o">.</span><span class="kt">Prism</span> <span class="o">.</span> <span class="kt">N</span><span class="o">.</span><span class="kt">Scalar</span><span class="p">)</span> <span class="o">$</span>
        <span class="kt">N</span><span class="o">.</span><span class="n">elements</span> <span class="o">$</span> <span class="kt">N</span><span class="o">.</span><span class="n">crystal</span> <span class="o">$</span> <span class="kt">N</span><span class="o">.</span><span class="n">crystal</span> <span class="o">$</span> <span class="kt">N</span><span class="o">.</span><span class="n">binary</span> <span class="p">(</span><span class="o">+</span><span class="p">)</span>
-       <span class="p">(</span><span class="n">aNum</span> <span class="o">@</span><span class="kt">Double</span> <span class="o">@</span><span class="mi">3</span> <span class="o">@</span><span class="mi">4</span><span class="p">)</span> <span class="p">(</span><span class="n">bNum</span> <span class="o">@</span><span class="kt">Double</span> <span class="o">@</span><span class="mi">3</span> <span class="o">@</span><span class="mi">4</span><span class="p">)</span>
+       <span class="p">(</span><span class="n">aNum</span> <span class="o">@</span><span class="kt">Double</span> <span class="o">@</span><span class="mi">4</span> <span class="o">@</span><span class="mi">3</span><span class="p">)</span> <span class="p">(</span><span class="n">bNum</span> <span class="o">@</span><span class="kt">Double</span> <span class="o">@</span><span class="mi">4</span> <span class="o">@</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13785,18 +13841,18 @@ $$
 
 <div class="output_text output_subarea ">
 <pre>(12&gt;&lt;12)
- [ 0.0,     0.0,     0.0, 0.0,   0.0,     0.0,     0.0,   0.0, 0.0,     0.0,     0.0, 0.0
- , 0.0,     0.0,     0.0, 0.0,   0.0,     0.0,     0.0,   0.0, 0.0,     0.0,     0.0, 0.0
- , 0.0,     0.0,     0.0, 0.0,   0.0,     0.0,     0.0,   0.0, 0.0,     0.0,     0.0, 0.0
- , 0.0,     0.0,     0.0, 0.0,   0.0,     0.0,     0.0,   0.0, 0.0,     0.0,     0.0, 0.0
- , 0.0,     0.0,     0.0, 0.0,   0.0,     0.0,     0.0,   0.0, 0.0,     0.0,     0.0, 0.0
- , 0.0, 2610.75,     0.0, 0.0, 420.5, -6062.5,   420.5,   0.0, 0.0, 2610.75,     0.0, 0.0
- , 0.0,     0.0, 2610.75, 0.0,   0.0,   420.5, -6062.5, 420.5, 0.0,     0.0, 2610.75, 0.0
- , 0.0,     0.0,     0.0, 0.0,   0.0,     0.0,     0.0,   0.0, 0.0,     0.0,     0.0, 0.0
- , 0.0,     0.0,     0.0, 0.0,   0.0,     0.0,     0.0,   0.0, 0.0,     0.0,     0.0, 0.0
- , 0.0,     0.0,     0.0, 0.0,   0.0,     0.0,     0.0,   0.0, 0.0,     0.0,     0.0, 0.0
- , 0.0,     0.0,     0.0, 0.0,   0.0,     0.0,     0.0,   0.0, 0.0,     0.0,     0.0, 0.0
- , 0.0,     0.0,     0.0, 0.0,   0.0,     0.0,     0.0,   0.0, 0.0,     0.0,     0.0, 0.0 ]</pre>
+ [ 0.0,  0.0, 0.0, 0.0,   0.0, 0.0, 0.0,   0.0, 0.0, 0.0,  0.0, 0.0
+ , 0.0,  0.0, 0.0, 0.0,   0.0, 0.0, 0.0,   0.0, 0.0, 0.0,  0.0, 0.0
+ , 0.0,  0.0, 0.0, 0.0,   0.0, 0.0, 0.0,   0.0, 0.0, 0.0,  0.0, 0.0
+ , 0.0,  0.0, 0.0, 0.0,   0.0, 0.0, 0.0,   0.0, 0.0, 0.0,  0.0, 0.0
+ , 0.0, 6.75, 0.0, 2.0, -17.5, 2.0, 0.0,  6.75, 0.0, 0.0,  0.0, 0.0
+ , 0.0,  0.0, 0.0, 0.0,   0.0, 0.0, 0.0,   0.0, 0.0, 0.0,  0.0, 0.0
+ , 0.0,  0.0, 0.0, 0.0,   0.0, 0.0, 0.0,   0.0, 0.0, 0.0,  0.0, 0.0
+ , 0.0,  0.0, 0.0, 0.0,  6.75, 0.0, 2.0, -17.5, 2.0, 0.0, 6.75, 0.0
+ , 0.0,  0.0, 0.0, 0.0,   0.0, 0.0, 0.0,   0.0, 0.0, 0.0,  0.0, 0.0
+ , 0.0,  0.0, 0.0, 0.0,   0.0, 0.0, 0.0,   0.0, 0.0, 0.0,  0.0, 0.0
+ , 0.0,  0.0, 0.0, 0.0,   0.0, 0.0, 0.0,   0.0, 0.0, 0.0,  0.0, 0.0
+ , 0.0,  0.0, 0.0, 0.0,   0.0, 0.0, 0.0,   0.0, 0.0, 0.0,  0.0, 0.0 ]</pre>
 </div>
 
 </div>
@@ -13830,7 +13886,7 @@ $$
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-Haskell"><pre><span></span><span class="nf">c</span> <span class="ow">::</span> <span class="kt">Vector</span> <span class="kt">Double</span>
-<span class="nf">c</span> <span class="ow">=</span> <span class="n">fromList</span> <span class="o">$</span> <span class="kt">N</span><span class="o">.</span><span class="n">elements</span> <span class="p">(</span><span class="n">h</span> <span class="o">@</span><span class="mi">30</span> <span class="o">@</span><span class="mi">60</span> <span class="o">@</span><span class="kt">Double</span><span class="p">)</span>
+<span class="nf">c</span> <span class="ow">=</span> <span class="n">fromList</span> <span class="o">$</span> <span class="kt">N</span><span class="o">.</span><span class="n">elements</span> <span class="p">(</span><span class="n">h</span> <span class="o">@</span><span class="mi">3</span> <span class="o">@</span><span class="mi">4</span> <span class="o">@</span><span class="kt">Double</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13887,16 +13943,103 @@ $$
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-Haskell"><pre><span></span>
+<div class=" highlight hl-Haskell"><pre><span></span><span class="nf">main</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+
+<div class="output_text output_subarea ">
+<pre>0.0
+4.445792552162428e-3
+7.536496589199581e-3
+9.685474590386838e-3
+1.1179180479250954e-2
+1.2215783380962438e-2
+1.2936469361667507e-2
+1.3437435527874617e-2
+1.3785614451622913e-2
+1.4027670958010267e-2
+1.4196099215739022e-2
+1.4312878038957881e-2
+1.4394259941155774e-2
+1.4450706139605892e-2
+1.4490277045502337e-2
+1.451741051111616e-2
+1.4536171194645382e-2
+1.4549482462569737e-2
+1.45586417237852e-2
+1.4564936158380733e-2</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The grid is unrealistically coarse. Let's check the Haskell implementation against a <a href="https://github.com/LLNL/sundials/blob/master/examples/arkode/CXX_parallel/README">reference C implmentation</a>  with a better grid size.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/19.09.tar.gz
+mpicxx ark_heat2D.cpp -lm -lsundials_arkode -lsundials_nvecparallel -o ark_heat2D
+mpiexec -n 1 ./ark_heat2D
+python plot_heat2D.py</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We could run with more processors but it's easier to modify the python to work on the Haskell output if we don't.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/19.09.tar.gz
+ghc -O2 -fforce-recomp Heat2D.hs -main-is Heat2D -o Heat2D
+./Heat2D
+python plot_heat2D.py</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="diagrams/heat2e_surf.019.png" alt=""></p>
+
+</div>
+</div>
 </div>
     </div>
   </div>

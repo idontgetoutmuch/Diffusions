@@ -139,7 +139,7 @@ sol = odeSolveV SDIRK_5_3_4' Nothing 1.0e-5 1.0e-10 (const bigU') (assoc (nx * n
 
 main :: IO ()
 main = do
-  h1 <- openFile "Haskell.txt" WriteMode
+  h1 <- openFile "heat2e.000.txt" WriteMode
   mapM_ (hPutStrLn h1) $ map (concatMap (' ':)) $ map (map show) $ toLists sol
   hClose h1
   mapM_ (\i -> putStrLn $ show $ sqrt $ (sol!i) <.> (sol!i) / (fromIntegral nx) / (fromIntegral ny)) ([0 .. length ts - 1] :: [Int])
