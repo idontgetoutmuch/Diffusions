@@ -20,7 +20,7 @@ import qualified GHC.TypeLits as M
 import           Data.Functor
 import           System.IO
 
-import           Numeric.Sundials.ARKode.ODE
+import           Numeric.Sundials
 import           Numeric.LinearAlgebra
 
 
@@ -133,9 +133,10 @@ ts :: [Double]
 ts = map (dTout *) $ map fromIntegral [1..bigNt]
 
 sol :: Matrix Double
-sol = odeSolveV SDIRK_5_3_4' Nothing 1.0e-5 1.0e-10 (const bigU') (assoc (nx * ny) 0.0 [] :: Vector Double) (fromList $ ts)
-  where
-    bigU' bigU = bigA #> bigU + b
+-- sol = odeSolveV SDIRK_5_3_4' Nothing 1.0e-5 1.0e-10 (const bigU') (assoc (nx * ny) 0.0 [] :: Vector Double) (fromList $ ts)
+--   where
+--     bigU' bigU = bigA #> bigU + b
+sol = undefined
 
 main :: IO ()
 main = do
