@@ -19,6 +19,8 @@ import           Prelude hiding (putStr, writeFile)
 import           Control.Exception
 import           Data.Coerce
 import           Katip.Monadic
+import           GHC.Int
+
 
 bigN :: Int
 bigN = 201
@@ -80,7 +82,7 @@ sol = do
 heat1D :: OdeProblem
 heat1D = emptyOdeProblem
   { odeRhs = odeRhsPure $ \_t x -> coerce (bigA #> (coerce x) + b)
-  , odeJacobian = Nothing
+  , odeJacobian = Just (\_t _x -> bigA)
   , odeEvents = mempty
   , odeEventHandler = nilEventHandler
   , odeMaxEvents = 0
@@ -97,7 +99,7 @@ myOptions = defaultEncodeOptions {
 main :: IO ()
 main = do
   x <- sol
-  writeFile "heat1F.txt" $ encodeWith myOptions $ map toList $ toRows x
+  writeFile "heat1G.txt" $ encodeWith myOptions $ map toList $ toRows x
 
 defaultOpts :: method -> ODEOpts method
 defaultOpts method = ODEOpts
@@ -107,8 +109,15 @@ defaultOpts method = ODEOpts
   , maxFail     = 10
   , odeMethod   = method
   , initStep    = Nothing
-  , jacobianRepr = DenseJacobian
+  , jacobianRepr = SparseJacobian
+                 $ SparsePattern
+                 $ cmap (fromIntegral :: I -> Int8)
+                 $ cmap (\x -> case x of 0 -> 0; _ -> 1)
+                 $ flatten
+                 $ toInt bigA
   }
+
+instance Element Int8
 
 emptyOdeProblem :: OdeProblem
 emptyOdeProblem = OdeProblem
